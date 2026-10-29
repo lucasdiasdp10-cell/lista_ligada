@@ -1,0 +1,337 @@
+CRUD - ALG E EST DE DADOS- ALUNO LUCAS DIAS DE PAULA
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct No {
+    char dado[100];
+    struct No* proximo;
+};
+
+
+struct Lista {
+    struct No* inicio;
+};
+
+
+
+struct No* criarNo(char dado[]) {
+    struct No* novo = (struct No*) malloc(sizeof(struct No));
+    strcpy(novo->dado, dado);
+    novo->proximo = NULL;
+    return novo;
+
+}
+struct Lista criarLista() {
+    struct Lista lista;
+    lista.inicio = NULL;
+    return lista;
+
+}
+
+// retorna 0 se o valor for vazio
+int lerDado(char mensagem[], char dado[]) {
+
+    printf("%s ", mensagem);
+
+    if (fgets(dado, 100, stdin) == NULL) {
+
+        return 0;
+
+    }
+
+    dado[strcspn(dado, "\n")] = '\0';
+    if (strlen(dado) == 0) {
+        printf("O valor não pode ficar vazio.\n");
+        return 0;
+    }
+    return 1;
+}
+
+
+// retorna -1 se a posicao for invalida
+
+int lerPosicao(char mensagem[]) {
+
+    char entrada[100];
+
+    double numero;
+
+    printf("%s\n", mensagem);
+
+    printf("As posições começam em 0.\n");
+
+    if (fgets(entrada, 100, stdin) == NULL) {
+
+        return -1;
+
+    }
+    
+    if (sscanf(entrada, "%lf", &numero) != 1 || numero < 0 || numero != (int) numero) {
+        printf("Informe uma posição inteira não negativa.\n");
+        return -1;
+    }
+    return (int) numero;
+
+}
+
+
+
+// percorre a lista e mostra os elementos com as posicoes
+
+void listarTodos(struct Lista lista) {
+
+    struct No* atual = lista.inicio;
+
+    int posicao = 0;
+
+    if (atual == NULL) {
+        printf("A lista está vazia.\n");
+        return;
+    }
+    while (atual != NULL) {
+        printf("[%d] %s\n", posicao, atual->dado);
+        atual = atual->proximo;
+        posicao++;
+    }
+
+}
+
+int inserir(struct Lista* lista, char dado[]) {
+
+    struct No* novo = criarNo(dado);
+
+
+
+    if (lista->inicio == NULL) {
+
+        lista->inicio = novo;
+
+        return 1;
+
+    }
+
+
+
+    struct No* atual = lista->inicio;
+
+    while (atual->proximo != NULL) {
+
+        atual = atual->proximo;
+
+    }
+
+
+
+    atual->proximo = novo;
+
+    return 1;
+
+}
+
+
+
+int inserirNaPosicao(struct Lista* lista, char dado[], int posicao) {
+
+    if (posicao < 0) {
+
+        return 0;
+
+    }
+
+
+
+    if (posicao == 0) {
+
+        struct No* novo = criarNo(dado);
+
+        novo->proximo = lista->inicio;
+
+        lista->inicio = novo;
+
+        return 1;
+
+    }
+
+
+
+    struct No* anterior = lista->inicio;
+
+    int i = 0;
+
+
+
+    while (i < posicao - 1 && anterior != NULL) {
+
+        anterior = anterior->proximo;
+
+        i++;
+
+    }
+
+
+
+    if (anterior == NULL) {
+
+        return 0;
+
+    }
+
+
+
+    struct No* novo = criarNo(dado);
+
+    novo->proximo = anterior->proximo;
+
+    anterior->proximo = novo;
+
+    return 1;
+
+}
+
+
+
+void menu(struct Lista* lista) {
+
+    char opcao[100];
+
+    char valor[100];
+
+
+
+    while (1) {
+
+        printf("\nLISTA LIGADA SIMPLES\n\n");
+
+        printf("[1] Listar todos\n");
+
+        printf("[2] Inserir no fim\n");
+
+        printf("[3] Inserir na posição\n");
+
+        printf("[4] Sair\n\n");
+
+        printf("Digite a opção desejada: ");
+
+
+
+        if (fgets(opcao, 100, stdin) == NULL) {
+
+            return;
+
+        }
+
+        opcao[strcspn(opcao, "\n")] = '\0';
+
+
+
+        if (strcmp(opcao, "4") == 0) {
+
+            return;
+
+        }
+
+
+
+        if (strcmp(opcao, "1") == 0) {
+
+            listarTodos(*lista);
+
+        } else if (strcmp(opcao, "2") == 0) {
+
+            if (lerDado("Qual valor deseja inserir?", valor)) {
+
+                inserir(lista, valor);
+
+            }
+
+        } else if (strcmp(opcao, "3") == 0) {
+
+            if (lerDado("Qual valor deseja inserir?", valor) == 0) {
+
+                continue;
+
+            }
+
+            int posicao = lerPosicao("Em qual posição?");
+
+            if (posicao == -1) {
+
+                continue;
+
+            }
+
+            if (inserirNaPosicao(lista, valor, posicao) == 0) {
+
+                printf("Posição inválida.\n");
+
+            }
+
+        } else {
+
+            printf("Opção inválida.\n");
+
+        }
+
+    }
+
+}
+
+
+
+int main() {
+
+    struct Lista minhaLista = criarLista();
+
+
+
+    printf("1. Inserindo itens no final:\n");
+
+    inserir(&minhaLista, "Arroz");
+
+    inserir(&minhaLista, "Feijão");
+
+    inserir(&minhaLista, "Farinha");
+
+    listarTodos(minhaLista);
+
+
+
+    printf("\n2. Inserindo na posição 1:\n");
+
+    inserirNaPosicao(&minhaLista, "Azeite", 1);
+
+    listarTodos(minhaLista);
+
+
+
+    printf("\n3. Inserindo na posição 0:\n");
+    inserirNaPosicao(&minhaLista, "Macarrão", 0);
+    listarTodos(minhaLista);
+
+
+
+    printf("\n4. Inserindo na posição igual ao tamanho:\n");
+
+    inserirNaPosicao(&minhaLista, "Sal", 5);
+
+    listarTodos(minhaLista);
+
+
+
+    printf("\n5. Posições inválidas (0 = false):\n");
+    printf("%d\n", inserirNaPosicao(&minhaLista, "X", -1));
+    printf("%d\n", inserirNaPosicao(&minhaLista, "X", 99));
+
+    printf("\n6. Lista vazia:\n");
+    struct Lista vazia = criarLista();
+    listarTodos(vazia);
+
+
+
+    menu(&minhaLista);
+
+    return 0;
+
+}
